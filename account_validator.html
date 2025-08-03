@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Validation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #2670e7;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            margin: 50px auto;
+            width: 50%;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        input {
+            padding: 10px;
+            width: 80%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            padding: 10px 15px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+        button:nth-of-type(1) {
+            background: #28a745;
+            color: white;
+        }
+
+        button:nth-of-type(2) {
+            background: #007bff;
+            color: white;
+        }
+
+        button:nth-of-type(3) {
+            background: #dc3545;
+            color: white;
+        }
+
+        p#account-result {
+            font-size: 18px;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .valid {
+            color: green;
+        }
+
+        .invalid {
+            color: red;
+        }
+
+        
+
+        footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background: #333;
+    color: white;
+    font-size: 14px;
+    text-align: center;
+    padding: 10px;
+}
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Account Validation System</h2>
+        <input type="text" id="account-number" placeholder="Enter Account Number" maxlength="9">
+        <br>
+        <button onclick="validateAccount()">Check Account</button>
+        <button onclick="addAccount()">Add Account (Admin)</button>
+        <button onclick="goBack()">🔙 Back</button>
+
+        <p id="account-result"></p>
+    </div>
+
+    <footer> 
+        <p>&copy; 2025 Your Company. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Get stored accounts or set default ones
+        function getAccounts() {
+            return JSON.parse(localStorage.getItem("validAccounts")) || ["123456789", "987654321", "456789123"];
+        }
+
+        // Save accounts to localStorage
+        function saveAccounts(accounts) {
+            localStorage.setItem("validAccounts", JSON.stringify(accounts));
+        }
+
+        // Validate account number
+        function validateAccount() {
+            let accountNumber = document.getElementById("account-number").value.trim();
+            let accounts = getAccounts();
+            let validPattern = /^[0-9]{9}$/; // 9-digit validation
+
+            if (!validPattern.test(accountNumber)) {
+                document.getElementById("account-result").innerHTML = "<span class='invalid'>❌ Invalid format. Must be a 9-digit number.</span>";
+                return;
+            }
+
+            if (accounts.includes(accountNumber)) {
+                document.getElementById("account-result").innerHTML = "<span class='valid'>✅ Account is valid.</span>";
+            } else {
+                document.getElementById("account-result").innerHTML = "<span class='invalid'>❌ Invalid account number.</span>";
+            }
+        }
+
+        // Add a new account (Admin)
+        function addAccount() {
+            let newAccount = prompt("Enter new 9-digit account number:");
+            if (!newAccount) return;
+
+            let validPattern = /^[0-9]{9}$/;
+            if (!validPattern.test(newAccount)) {
+                alert("❌ Invalid format! Account must be 9 digits.");
+                return;
+            }
+
+            let accounts = getAccounts();
+            if (!accounts.includes(newAccount)) {
+                accounts.push(newAccount);
+                saveAccounts(accounts);
+                alert("✅ Account added successfully!");
+            } else {
+                alert("⚠️ Account already exists!");
+            }
+        }
+
+        // Go back to the previous page
+        
+    function goBack() {
+        window.location.href = "first_page.html";
+    }
+
+
+    </script>
+
+</body>
+</html>

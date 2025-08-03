@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bank Website - Register & Login</title>
+    <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+    <div class="navbar">
+        <a href="#" onclick="showRegister()">Register</a>
+        <a href="#" onclick="showLogin()">Login</a>
+    </div>
+
+    <!-- Register Section -->
+    <div id="register-section" class="auth-container">
+        <h2>Register</h2>
+        <input type="text" id="register-username" placeholder="Username (Only letters)" required><br>
+        <input type="email" id="register-email" placeholder="Email" required><br>
+        <!-- Updated placeholder with stronger password requirements -->
+        <input type="password" id="register-password" placeholder="Password (Min 8 chars, uppercase, lowercase, number, special char)" required><br>
+        <button onclick="registerUser()">Register</button>
+        <p> If already registered..Login</p>
+        
+        <p id="register-success" style="color: lightgreen; display: none;">Registration successful! Proceed to login.</p>
+    </div>
+
+    <!-- Login Section -->
+    <div id="login-section" class="auth-container" style="display: none;">
+        <h2>Login</h2>
+        <input type="text" id="login-username" placeholder="Username" required><br>
+        <input type="password" id="login-password" placeholder="Password" required><br>
+        <button onclick="loginUser()">Login</button>
+        <p id="login-error" style="color: red; display: none;">Invalid username or password. Please register first.</p>
+    </div>
+
+    <script>
+        function showRegister() {
+            document.getElementById("register-section").style.display = "block";
+            document.getElementById("login-section").style.display = "none";
+        }
+
+        function showLogin() {
+            document.getElementById("register-section").style.display = "none";
+            document.getElementById("login-section").style.display = "block";
+        }
+
+        function validateEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        function validateUsername(username) {
+            return /^[a-zA-Z]+$/.test(username); // Only letters allowed
+        }
+
+        // Stronger password validation:
+        // Minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special character.
+        function validatePassword(password) {
+            const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+            return regex.test(password);
+        }
+
+        function registerUser() {
+            let username = document.getElementById("register-username").value.trim();
+            let email = document.getElementById("register-email").value.trim();
+            let password = document.getElementById("register-password").value.trim();
+
+            if (!validateUsername(username)) {
+                alert("Username must contain only letters (no numbers or symbols).");
+                return;
+            }
+
+            if (!validateEmail(email)) {
+                alert("Please enter a valid email address.");
+                return;
+            }
+
+            if (!validatePassword(password)) {
+                alert("Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.");
+                return;
+            }
+
+            let users = JSON.parse(localStorage.getItem("users")) || {};
+
+            if (users[username]) {
+                alert("Username already exists. Please choose a different one.");
+                return;
+            }
+
+            users[username] = { email, password };
+            localStorage.setItem("users", JSON.stringify(users));
+
+            document.getElementById("register-success").style.display = "block";
+            setTimeout(() => {
+                showLogin();
+            }, 1000);
+        }
+
+        function loginUser() {
+            let username = document.getElementById("login-username").value.trim();
+            let password = document.getElementById("login-password").value.trim();
+
+            let users = JSON.parse(localStorage.getItem("users")) || {};
+
+            if (users[username] && users[username].password === password) {
+                sessionStorage.setItem("loggedUser", username);
+                alert("Login successful!");
+                window.location.href = "homepage sample.html";
+            } else {
+                document.getElementById("login-error").style.display = "block";
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #0a1f44;
+            color: white;
+        }
+        .navbar {
+            background-color: #071b37;
+            padding: 10px;
+        }
+        .navbar a {
+            color: white;
+            padding: 10px;
+            text-decoration: none;
+        }
+        .auth-container {
+            margin: 50px auto;
+            width: 300px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.1);
+            background-color: #12274d;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #1e3a72;
+            color: white;
+        }
+        button {
+            background-color: #1b4e9b;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #163b7a;
+        }
+    </style>
+</body>
+</html>

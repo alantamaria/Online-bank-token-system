@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            background: url(images/admin.jpg);
+            background-size: cover;
+            background-position: center;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .admin-header {
+            width: 100%;
+            max-width: 1200px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .nav-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            background: #2c3e50;
+            color: white;
+        }
+
+        .nav-btn.active {
+            background: #3498db;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        table {
+            width: 100%;
+            max-width: 1200px;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+        }
+
+        th {
+            background: #2c3e50;
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .delete-btn {
+            background-color: #e74c3c;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .delete-btn:hover {
+            background-color: #c0392b;
+        }
+
+        /* Feedback Section */
+        #feedback-section {
+            display: none;
+        }
+
+        .feedback-row td {
+            padding: 15px;
+            vertical-align: top;
+        }
+
+        .feedback-message {
+            max-width: 400px;
+            word-wrap: break-word;
+        }
+
+        /* Login Form Styling */
+        .login-form {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 350px;
+            margin-top: 50px;
+        }
+
+        @media (max-width: 768px) {
+            table {
+                font-size: 14px;
+            }
+            
+            th, td {
+                padding: 12px;
+            }
+            
+            .nav-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .nav-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body onload="checkAdminSession()">
+    <!-- Admin Login Form -->
+    <div id="admin-login" class="login-form">
+        <h2>Admin Login</h2>
+        <input type="text" id="admin-username" placeholder="Admin Username" required><br><br>
+        <input type="password" id="admin-password" placeholder="Password" required><br>
+        <button class="nav-btn" onclick="loginAdmin()" style="margin-top: 15px;">Login</button>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="admin-panel" class="admin-panel">
+        <div class="admin-header">
+            <h2>Admin Dashboard</h2>
+            <div class="nav-buttons">
+                <button class="nav-btn active" onclick="showSection('bookings')">Token Bookings</button>
+                <button class="nav-btn" onclick="showSection('feedback')">Feedback</button>
+                <a href="homepage sample.html" class="nav-btn">Back to Home</a>
+            </div>
+        </div>
+
+        <!-- Bookings Section -->
+        <div id="bookings-section">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Token #</th>
+                        <th>User</th>
+                        <th>Email</th>
+                        <th>Date</th>
+                        <th>Slot</th>
+                        <th>Reason</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="booking-list"></tbody>
+            </table>
+        </div>
+
+   <!-- Feedback Section -->
+<div id="feedback-section">
+    <table>
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Feedback</th>
+                <th>Date</th>
+            </tr>
+        </thead>  <!-- Remove extra </thead> here -->
+        <tbody id="feedback-list"></tbody>
+    </table>
+</div>
+
+    <script>
+        // Admin Credentials
+        const adminUsername = "admin";
+        const adminPassword = "admin123";
+
+        // Section Management
+        function showSection(section) {
+    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelector(`button[onclick="showSection('${section}')"]`).classList.add('active');
+    
+    document.getElementById('bookings-section').style.display = section === 'bookings' ? 'block' : 'none';
+    document.getElementById('feedback-section').style.display = section === 'feedback' ? 'block' : 'none';
+
+    // Load data when switching sections
+    if (section === 'feedback') {
+        loadFeedback();
+    }
+    else if (section === 'bookings') {
+        loadBookings();
+    }
+}
+
+        // Session Management
+        function checkAdminSession() {
+            const adminUser = sessionStorage.getItem("adminUser");
+            if (adminUser) {
+                document.getElementById("admin-login").style.display = "none";
+                document.getElementById("admin-panel").style.display = "block";
+                loadBookings();
+            } else {
+                document.getElementById("admin-login").style.display = "block";
+                document.getElementById("admin-panel").style.display = "none";
+            }
+        }
+
+        function loginAdmin() {
+            const username = document.getElementById("admin-username").value;
+            const password = document.getElementById("admin-password").value;
+
+            if (username === adminUsername && password === adminPassword) {
+                sessionStorage.setItem("adminUser", username);
+                checkAdminSession();
+            } else {
+                alert("Invalid credentials!");
+            }
+        }
+
+        // Data Loading
+        function loadBookings() {
+            const bookings = JSON.parse(localStorage.getItem("bookedTokens")) || [];
+            const bookingList = document.getElementById("booking-list");
+            
+            bookingList.innerHTML = bookings.map((booking, index) => `
+                <tr>
+                    <td>${booking.token}</td>
+                    <td>${booking.userName}</td>
+                    <td>${booking.email}</td>
+                    <td>${booking.date}</td>
+                    <td>${booking.slot}</td>
+                    <td>${booking.reason}</td>
+                    <td><button class="delete-btn" onclick="deleteBooking(${index})">Delete</button></td>
+                </tr>
+            `).join('');
+        }
+
+        function loadFeedback() {
+    const feedbackEntries = JSON.parse(localStorage.getItem("feedbacks")) || [];
+    const feedbackList = document.getElementById("feedback-list");
+    
+    // Clear existing content
+    feedbackList.innerHTML = "";
+
+    if (feedbackEntries.length === 0) {
+        feedbackList.innerHTML = `
+            <tr>
+                <td colspan="3" style="text-align: center; padding: 20px;">
+                    No feedback found
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    // Add feedback entries
+    feedbackEntries.forEach(feedback => {
+        feedbackList.innerHTML += `
+            <tr class="feedback-row">
+                <td>${feedback.user || "Anonymous"}</td>
+                <td class="feedback-message">${feedback.text}</td>
+                <td>${new Date(feedback.timestamp).toLocaleDateString()}</td>
+            </tr>
+        `;
+    });
+}
+    </script>
+</body>
+</html>

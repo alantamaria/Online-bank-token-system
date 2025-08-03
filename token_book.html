@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Token Booking</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+            background-color: #15549c;
+        }
+
+        input, select, textarea {
+            padding: 10px;
+            font-size: 16px;
+            width: 220px;
+            margin: 5px;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        button {
+            padding: 10px 15px;
+            font-size: 16px;
+            margin: 5px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+        .login-btn { background-color: #007bff; color: white; }
+        .book-btn { background-color: #28a745; color: white; }
+        .logout-btn { background-color: #dc3545; color: white; }
+
+        .valid { color: green; font-weight: bold; }
+        .invalid { color: red; font-weight: bold; }
+
+        footer {
+            margin-top: 50px;
+            padding: 10px;
+            background-color: #333;
+            color: white;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+</head>
+<body>
+
+    <!-- Login Section -->
+    <div id="login-section">
+        <h2>Login</h2>
+        <input type="text" id="username" placeholder="Enter Username">
+        <button class="login-btn">Login</button>
+    </div>
+
+    <!-- Token Booking Section -->
+    <div id="booking-section" style="display: none;">
+        <h2>Book Your Token</h2>
+        <p>Welcome, <span id="user-name"></span>! <button class="logout-btn">Logout</button></p>
+
+        <label for="email">Enter Email:</label>
+        <input type="email" id="email" placeholder="Enter your email">
+
+        <label for="booking-date">Select a Date:</label>
+        <input type="date" id="booking-date" required>
+
+        <label for="slot-time">Select a Time Slot:</label>
+        <select id="slot-time">
+            <option value="10:00 AM">10:00 AM</option>
+            <option value="11:00 AM">11:00 AM</option>
+            <option value="12:00 PM">12:00 PM</option>
+            <option value="02:00 PM">02:00 PM</option>
+            <option value="03:00 PM">03:00 PM</option>
+        </select>
+
+        <label for="booking-reason">Booking Reason:</label>
+        <textarea id="booking-reason" placeholder="Enter the reason for your appointment"></textarea>
+
+        <label for="support-document">Upload Support Document:</label>
+        <input type="file" id="support-document" accept=".pdf,.jpg,.jpeg,.png">
+
+        <button class="book-btn">Book Token</button>
+
+        <div id="token-confirmation"></div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Online Token Booking System. All rights reserved.</p>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let loggedInUser = sessionStorage.getItem("loggedInUser");
+
+            if (loggedInUser) {
+                document.getElementById("login-section").style.display = "none";
+                document.getElementById("booking-section").style.display = "block";
+                document.getElementById("user-name").innerText = loggedInUser;
+            }
+
+            document.querySelector(".login-btn").addEventListener("click", login);
+            document.querySelector(".logout-btn").addEventListener("click", logout);
+            document.querySelector(".book-btn").addEventListener("click", bookToken);
+        });
+
+        function login() {
+            let username = document.getElementById("username").value.trim();
+
+            if (username) {
+                sessionStorage.setItem("loggedInUser", username);
+                alert("Login successful!");
+                location.reload();
+            } else {
+                alert("Please enter a username.");
+            }
+        }
+
+        function logout() {
+            sessionStorage.removeItem("loggedInUser");
+            alert("You have been logged out.");
+            location.reload();
+        }
+
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        function bookToken(event) {
+            event.preventDefault(); // Prevents form submission
+
+            let loggedInUser = sessionStorage.getItem("loggedInUser");
+            let email = document.getElementById("email").value.trim();
+            let dateInput = document.getElementById("booking-date").value;
+            let slot = document.getElementById("slot-time").value;
+            let bookingReason = document.getElementById("booking-reason").value.trim();
+            let supportDocument = document.getElementById("support-document").files[0];
+
+            if (!loggedInUser) {
+                alert("You must be logged in to book a token.");
+                return;
+            }
+
+            if (!email || !isValidEmail(email)) {
+                alert("Please enter a valid email address.");
+                return;
+            }
+
+            if (!dateInput) {
+                alert("Please select a date for your appointment.");
+                return;
+            }
+
+            if (!bookingReason) {
+                alert("Please enter the reason for your booking.");
+                return;
+            }
+
+            if (!supportDocument) {
+                alert("Please upload a support document.");
+                return;
+            }
+
+            let bookedTokens = JSON.parse(localStorage.getItem("bookedTokens")) || [];
+
+            // Check for existing bookings on the same date and slot
+            let existingBooking = bookedTokens.find(token => token.date === dateInput && token.slot === slot);
+            if (existingBooking) {
+                alert(`This time slot (${slot}) on ${dateInput} is already booked. Please choose another slot.`);
+                return;
+            }
+
+            let tokenNumber = bookedTokens.length + 1;
+
+            let token = {
+                username: loggedInUser,
+                email: email,
+                tokenNumber: tokenNumber,
+                date: dateInput,
+                slot: slot,
+                reason: bookingReason,
+                documentName: supportDocument.name,
+                time: new Date().toLocaleString()
+            };
+
+            bookedTokens.push(token);
+            localStorage.setItem("bookedTokens", JSON.stringify(bookedTokens));
+
+            document.getElementById("token-confirmation").innerHTML = `
+                <p class="valid"><strong>Your token number:</strong> ${tokenNumber}</p>
+                <p><strong>Date:</strong> ${dateInput}</p>
+                <p><strong>Time Slot:</strong> ${slot}</p>
+                <p><strong>Reason:</strong> ${bookingReason}</p>
+                <p><strong>Uploaded Document:</strong> ${supportDocument.name}</p>
+            `;
+
+            emailjs.init("XtBYhkb3db2BBpPp3");
+
+            let emailParams = {
+                to_email: email,
+                username: loggedInUser,
+                token_number: tokenNumber,
+                date: dateInput,
+                slot: slot,
+                reason: bookingReason,
+                document_name: supportDocument.name
+            };
+
+            emailjs.send("service_15b175o", "template_q16tqab", emailParams)
+                .then(() => alert("Token booked successfully! A confirmation email has been sent."))
+                .catch(error => console.error("Error sending email:", error));
+        }
+    </script>
+    <a href="first_page.html">Back To Home</a>
+</body>
+</html>

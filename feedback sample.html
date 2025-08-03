@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback System</title>
+<style>
+    body { 
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+    }
+    
+    /* Header Styling */
+    header { 
+        background: linear-gradient(135deg, #007bff 0%, #0062cc 100%);
+        color: white; 
+        padding: 2rem;
+        font-size: 1.8rem;
+        font-weight: 600;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .feedback-section { 
+        max-width: 600px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        backdrop-filter: blur(10px);
+    }
+
+    textarea { 
+        width: 100%;
+        height: 120px;
+        padding: 1rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        margin: 1rem 0;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        resize: vertical;
+    }
+
+    textarea:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 10px rgba(0,123,255,0.2);
+    }
+
+    button { 
+        width: 100%;
+        padding: 1rem;
+        margin: 0.5rem 0;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    button:hover { 
+        background: #0056b3;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .back-button { 
+        background: #28a745;
+        margin-top: 1rem;
+    }
+
+    .back-button:hover { 
+        background: #1e7e34;
+    }
+
+    #feedback-list {
+        margin-top: 2rem;
+        padding: 1rem;
+        background: rgba(249, 249, 249, 0.9);
+        border-radius: 10px;
+    }
+
+    .feedback-item {
+        padding: 1.5rem;
+        margin: 1rem 0;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        transition: transform 0.3s ease;
+    }
+
+    .feedback-item:hover {
+        transform: translateY(-3px);
+    }
+
+    .feedback-item p {
+        margin: 0.5rem 0;
+        line-height: 1.6;
+        color: #333;
+    }
+
+    .feedback-item strong {
+        color: #007bff;
+        font-size: 1.1rem;
+    }
+
+    .feedback-item small {
+        color: #666;
+        font-size: 0.9rem;
+        display: block;
+        margin-top: 0.5rem;
+    }
+
+    footer { 
+        margin-top: auto;
+        padding: 1.5rem;
+        background: #2c3e50;
+        color: white;
+        text-align: center;
+    }
+
+    @media (max-width: 768px) {
+        .feedback-section {
+            margin: 1rem;
+            padding: 1.5rem;
+        }
+
+        header {
+            padding: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        textarea {
+            height: 100px;
+        }
+
+        button {
+            padding: 0.8rem;
+            font-size: 0.9rem;
+        }
+
+        .feedback-item {
+            padding: 1rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .feedback-section {
+            padding: 1rem;
+        }
+
+        header {
+            font-size: 1.3rem;
+            padding: 1rem;
+        }
+
+        textarea {
+            font-size: 0.9rem;
+        }
+    }
+</style>
+</head>
+<body>
+
+<header>
+    Feedback System
+</header>
+
+<div class="feedback-section">
+    <h2>Give Us Your Feedback</h2>
+    <textarea id="feedback" placeholder="Write your feedback here..."></textarea>
+    <button onclick="submitFeedback()">Submit Feedback</button>
+    <button class="back-button" onclick="window.location.href='homepage sample.html';">Back to Home</button>
+    <div id="feedback-list"></div>
+</div>
+
+<footer>
+    <p>&copy; 2025 Feedback System. All Rights Reserved.</p>
+</footer>
+
+<script>
+    let loggedInUser = localStorage.getItem("loggedInUser");
+
+    function submitFeedback() {
+        let feedbackText = document.getElementById("feedback").value.trim();
+
+        if (!feedbackText) {
+            alert("Please enter your feedback.");
+            return;
+        }
+
+        // Get existing feedback or initialize empty array
+        let feedbacks = JSON.parse(localStorage.getItem("feedbacks")) || [];
+        
+        // Add new feedback with timestamp
+        feedbacks.push({
+            user: loggedInUser,
+            text: feedbackText,
+            timestamp: new Date().toISOString()
+        });
+
+        // Save back to localStorage
+        localStorage.setItem("feedbacks", JSON.stringify(feedbacks));
+
+        displayFeedback();
+        document.getElementById("feedback").value = "";
+    }
+
+    function displayFeedback() {
+        let feedbacks = JSON.parse(localStorage.getItem("feedbacks")) || [];
+        let feedbackList = document.getElementById("feedback-list");
+
+        feedbackList.innerHTML = feedbacks.length === 0 
+            ? "<h3>No previous feedback.</h3>"
+            : "<h3>Previous Feedback:</h3>" + 
+              feedbacks.map(f => `
+                  <div class="feedback-item">
+                      <p><strong>${f.user || 'Anonymous'}:</strong></p>
+                      <p>${f.text}</p>
+                      <small>${new Date(f.timestamp).toLocaleString()}</small>
+                  </div>
+              `).join("");
+    }
+
+    // Initial setup
+    if (!loggedInUser) {
+        loggedInUser = prompt("Enter your username to login:"); 
+        if (loggedInUser) {
+            localStorage.setItem("loggedInUser", loggedInUser);
+        } else {
+            alert("Login required to submit feedback!");
+        }
+    }
+    displayFeedback();
+</script>
+</body>
+</html>

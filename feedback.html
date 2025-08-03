@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback System</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; text-align: center; }
+        
+        /* Header Styling */
+        header { 
+            background: #007bff; 
+            color: white; 
+            padding: 15px; 
+            font-size: 22px; 
+            font-weight: bold; 
+            text-align: center; 
+        }
+
+        .feedback-section { max-width: 500px; margin: auto; margin-top: 20px; }
+        textarea { width: 100%; height: 80px; margin-bottom: 10px; }
+        button { display: block; width: 100%; padding: 10px; margin-top: 5px; background: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        #feedback-list { margin-top: 20px; padding: 10px; background: #f9f9f9; border-radius: 5px; text-align: left; }
+        .back-button { background: #28a745; }
+        .back-button:hover { background: #1e7e34; }
+
+        /* Footer Styling */
+        footer { 
+            margin-top: 30px; 
+            padding: 10px; 
+            background: #333; 
+            color: white; 
+            text-align: center; 
+            width: 100%; 
+            position: relative; 
+            bottom: 0; 
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    Feedback System
+</header>
+
+<div class="feedback-section">
+    <h2>Give Us Your Feedback</h2>
+    <textarea id="feedback" placeholder="Write your feedback here..."></textarea>
+    <button onclick="submitFeedback()">Submit Feedback</button>
+    <button class="back-button" onclick="goBack()">Back to Home</button>
+    <div id="feedback-list"></div>
+</div>
+
+<footer>
+    <p>&copy; 2025 Feedback System. All Rights Reserved.</p>
+</footer>
+
+<script>
+    // Simulated login mechanism
+    let loggedInUser = localStorage.getItem("loggedInUser");
+
+    if (!loggedInUser) {
+        loggedInUser = prompt("Enter your username to login:"); 
+        if (loggedInUser) {
+            localStorage.setItem("loggedInUser", loggedInUser);
+        } else {
+            alert("Login required to submit feedback!");
+        }
+    }
+
+    function submitFeedback() {
+        let feedbackText = document.getElementById("feedback").value.trim();
+
+        if (!feedbackText) {
+            alert("Please enter your feedback.");
+            return;
+        }
+
+        if (loggedInUser !== "aa") { // Restrict feedback submission to "aa"
+            alert("Only user 'aa' can submit feedback.");
+            return;
+        }
+
+        let feedbacks = JSON.parse(localStorage.getItem("feedbacks")) || [];
+        feedbacks.push({ user: loggedInUser, text: feedbackText });
+        localStorage.setItem("feedbacks", JSON.stringify(feedbacks));
+
+        displayFeedback();
+        document.getElementById("feedback").value = "";
+    }
+
+    function displayFeedback() {
+        let feedbacks = JSON.parse(localStorage.getItem("feedbacks")) || [];
+        let feedbackList = document.getElementById("feedback-list");
+
+        if (feedbacks.length === 0) {
+            feedbackList.innerHTML = "<h3>No previous feedback.</h3>";
+            return;
+        }
+
+        feedbackList.innerHTML = "<h3>Previous Feedback:</h3>" + 
+            feedbacks
+            .filter(f => f.user && f.text) // Ensure valid data
+            .map(f => `<p><strong>${f.user}:</strong> ${f.text}</p>`)
+            .join("");
+    }
+
+    function goBack() {
+        window.location.href = "first_page.html"; // Change this if your index page has a different filename/path
+    }
+
+    // Display existing feedback on page load
+    displayFeedback();
+</script>
+
+</body>
+</html>

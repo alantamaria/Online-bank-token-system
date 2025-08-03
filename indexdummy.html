@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bank Website</title>
+    <link rel="stylesheet" href="./styles.css">
+    <style>
+        
+
+    </style>
+</head>
+<body onload="checkSession()">
+    
+    <div class="navbar">
+        <a href="index.html">Home</a>
+        <a href="token_book.html">Token</a>
+        <a href="account_validator.html">Check Account Validation</a>
+        <a href="feedback.html">Feedback</a>
+        <a href="map.html">Contact Us</a>
+        <a href="bookings.html">Booking List</a>
+
+        
+
+        <!-- Auth Buttons -->
+        <div id="auth-buttons">
+            <button onclick="openLoginModal()">Login</button>
+            <button onclick="openRegisterModal()">Register</button>
+        </div>
+
+        <!-- User Info -->
+        <div id="user-section">
+            <span id="user-info"></span>
+            <button id="logout-btn" onclick="logoutUser()">Logout</button>
+        </div>
+    </div>
+    
+    <!-- Image Slider -->
+    <div class="slider">
+        <div class="slides">
+            <div class="slide"><img src="./images/bannerbase.jpeg" alt="Slide 1"></div>
+            <div class="slide"><img src="./images/bannera1.jpeg" alt="Slide 2"></div>
+            <div class="slide"><img src="./images/bannera2.jpeg" alt="Slide 3"></div>
+        </div>
+    </div>
+
+    <marquee>
+        Customers can now deposit Income Tax using all Bank Debit Cards. | Profile password change after 365 days for security. | Call us at 1800 1234.
+    </marquee>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeLoginModal()">&times;</span>
+            <h2>Login</h2>
+            <input type="text" id="login-username" placeholder="Username" required>
+            <input type="password" id="login-password" placeholder="Password" required>
+            <button onclick="loginUser()">Login</button>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="register-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeRegisterModal()">&times;</span>
+            <h2>Register</h2>
+            <input type="text" id="register-username" placeholder="Username" required>
+            <input type="email" id="register-email" placeholder="Email" required>
+            <input type="password" id="register-password" placeholder="Password" required>
+            <button onclick="registerUser()">Register</button>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2025 Bank Corp. All Rights Reserved.</p>
+    </div>
+
+    
+        function openLoginModal() { document.getElementById("login-modal").style.display = "flex"; }
+        function closeLoginModal() { document.getElementById("login-modal").style.display = "none"; }
+        function openRegisterModal() { document.getElementById("register-modal").style.display = "flex"; }
+        function closeRegisterModal() { document.getElementById("register-modal").style.display = "none"; }
+
+        function loginUser() {
+            let username = document.getElementById("login-username").value;
+            if (username) {
+                sessionStorage.setItem("loggedUser", username);
+
+                // Check if Admin
+                if (username.toLowerCase() === "admin") {
+                    sessionStorage.setItem("isAdmin", "true");
+                }
+                updateUI();
+                closeLoginModal();
+            } else {
+                alert("Please enter username and password.");
+            }
+        }
+
+        function logoutUser() {
+            sessionStorage.removeItem("loggedUser");
+            sessionStorage.removeItem("isAdmin");
+            updateUI();
+        }
+
+        function updateUI() {
+            let user = sessionStorage.getItem("loggedUser");
+            let isAdmin = sessionStorage.getItem("isAdmin");
+
+            if (user) {
+                document.getElementById("auth-buttons").style.display = "none";
+                document.getElementById("user-section").style.display = "flex";
+                document.getElementById("user-info").innerText = `Welcome, ${user}`;
+
+                // Show Admin Panel Link if Admin
+                if (isAdmin) {
+                    document.getElementById("admin-panel").style.display = "block";
+                } else {
+                    document.getElementById("admin-panel").style.display = "none";
+                }
+            } else {
+                document.getElementById("auth-buttons").style.display = "flex";
+                document.getElementById("user-section").style.display = "none";
+                document.getElementById("admin-panel").style.display = "none";
+            }
+        }
+
+        function checkSession() {
+            updateUI();
+        }
+    </script>
+</body>
+</html>

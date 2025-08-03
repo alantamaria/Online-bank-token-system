@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="./styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+            background-color: #f4f4f4;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #ccc;
+            text-align: left;
+        }
+
+        th {
+            background: #007bff;
+            color: white;
+        }
+
+        .delete-btn {
+            background-color: red;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .delete-btn:hover {
+            opacity: 0.8;
+        }
+
+        .back-btn {
+            margin-top: 20px;
+            background-color: #dc3545;
+            padding: 10px 15px;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body onload="checkAdminSession()">
+
+    <h2>Admin Panel - Token Bookings</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Token #</th>
+                <th>User</th>
+                <th>Email</th>
+                <th>Date</th>
+                <th>Slot</th>
+                <th>Reason</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="booking-list">
+            <!-- Bookings will be loaded here -->
+        </tbody>
+    </table>
+
+    <br>
+    <a href="first_page.html" class="back-btn">Back to Home</a>
+
+    <script>
+        function checkAdminSession() {
+            let adminUser = sessionStorage.getItem("adminUser");
+            if (!adminUser) {
+                alert("Access Denied! Only admins can view this page.");
+                window.location.href = "index.html";
+            } else {
+                loadBookings();
+            }
+        }
+
+        function loadBookings() {
+            let bookings = JSON.parse(localStorage.getItem("bookedTokens")) || [];
+            let bookingList = document.getElementById("booking-list");
+
+            bookingList.innerHTML = "";
+
+            bookings.forEach((token, index) => {
+                let row = `<tr>
+                    <td>${token.tokenNumber}</td>
+                    <td>${token.username}</td>
+                    <td>${token.email}</td>
+                    <td>${token.date}</td>
+                    <td>${token.slot}</td>
+                    <td>${token.reason}</td>
+                    <td><button class="delete-btn" onclick="deleteBooking(${index})">Delete</button></td>
+                </tr>`;
+                bookingList.innerHTML += row;
+            });
+        }
+
+        function deleteBooking(index) {
+            let bookings = JSON.parse(localStorage.getItem("bookedTokens")) || [];
+            bookings.splice(index, 1);
+            localStorage.setItem("bookedTokens", JSON.stringify(bookings));
+            loadBookings();
+        }
+    </script>
+
+</body>
+</html>

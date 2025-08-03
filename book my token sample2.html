@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Token Booking System</title>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js">
+  </script>
+  <script type="text/javascript">
+    (function () {
+      emailjs.init({
+        publicKey: "SkvU0DJhvfGFSnBmb",
+      });
+    })();
+  </script>
+  <style>
+    :root {
+      --primary-color: #2c3e50;
+      --secondary-color: #3498db;
+      --accent-color: #e74c3c;
+      --success-color: #2ecc71;
+      --text-color: #2c3e50;
+    }
+
+    body {
+      font-family: "Poppins", sans-serif;
+      margin: 0;
+      background: linear-gradient(135deg, #83a4d4 0%, #b6fbff 100%);
+      color: var(--text-color);
+      min-height: 100vh;
+      position: relative;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 600px;
+      margin: 2rem auto;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 2rem;
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(10px);
+      transition: transform 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .container:hover {
+      transform: translateY(-5px);
+    }
+
+    .container::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(to right,
+          rgba(255, 255, 255, 0) 0%,
+          rgba(255, 255, 255, 0.3) 100%);
+      transform: skewX(-45deg);
+      transition: 0.5s;
+    }
+
+    .container:hover::before {
+      left: 150%;
+    }
+
+    h2 {
+      color: var(--primary-color);
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+      text-align: center;
+      position: relative;
+    }
+
+    h2::after {
+      content: "";
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 50px;
+      height: 3px;
+      background: var(--secondary-color);
+      border-radius: 2px;
+    }
+
+    input,
+    select,
+    button {
+      width: 100%;
+      padding: 1rem;
+      margin: 0.8rem 0;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--secondary-color);
+      box-shadow: 0 0 10px rgba(52, 152, 219, 0.2);
+    }
+
+    button {
+      background: var(--secondary-color);
+      color: white;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    button::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 300px;
+      height: 300px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      transition: transform 0.5s ease;
+    }
+
+    button:hover::after {
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .green-button {
+      background: var(--success-color);
+    }
+
+    .red-button {
+      background: var(--accent-color);
+    }
+
+    #counter-box,
+    #token-box {
+      background: rgba(46, 204, 113, 0.1);
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 10px;
+      border: 2px solid var(--success-color);
+      animation: pulse 2s infinite;
+    }
+
+    #required-documents {
+      background: rgba(52, 152, 219, 0.1);
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 10px;
+      border: 2px solid var(--secondary-color);
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.02);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        width: 95%;
+        padding: 1rem;
+      }
+
+      input,
+      select,
+      button {
+        font-size: 0.9rem;
+        padding: 0.8rem;
+      }
+
+      h2 {
+        font-size: 1.3rem;
+      }
+    }
+
+    .token-confirmation {
+      animation: slideIn 0.5s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .floating {
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0% {
+        transform: translateY(0px);
+      }
+
+      50% {
+        transform: translateY(-10px);
+      }
+
+      100% {
+        transform: translateY(0px);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container" id="login-section">
+    <h2>Login</h2>
+    <input type="text" id="username" placeholder="Enter username" />
+    <button class="green-button" onclick="login()">Login</button>
+  </div>
+
+  <div class="container" id="account-section" style="display: none">
+    <h2>Enter Account Number or Mobile Number</h2>
+    <p>Do You Have an Account</p>
+    <input type="text" id="account-number" placeholder="Enter 9-digit account number" />
+    <p>Don't have an account</p>
+    <input type="text" id="mobile-number" placeholder="Enter Mobile Number" />
+    <button class="green-button" onclick="validateAccountOrMobile()">
+      Proceed
+    </button>
+    <p id="account-message"></p>
+  </div>
+
+  <div class="container" id="booking-section" style="display: none">
+    <h2>
+      Welcome, <span id="user-name"></span>!
+      <button class="red-button" onclick="logout()">Logout</button>
+    </h2>
+    <label>Email:</label>
+    <input type="email" id="email" placeholder="Enter your email" />
+    <label>Select Date:</label>
+    <input type="date" id="booking-date" />
+    <label>Select Time Slot:</label>
+    <select id="slot-time">
+      <option value="10:00 AM">10:00 AM</option>
+      <option value="11:00 AM">11:00 AM</option>
+      <option value="12:00 PM">12:00 PM</option>
+      <option value="2:00 PM">2:00 PM</option>
+      <option value="3:00 PM">3:00 PM</option>
+    </select>
+    <label>Select Purpose:</label>
+    <select id="purpose" onchange="showCounterAndDocuments()">
+      <option value="">Select</option>
+      <option value="Open Account">Open Account</option>
+      <option value="Apply Loan">Apply Loan</option>
+      <option value="Withdraw Money">Withdraw Money</option>
+      <option value="Deposit Money">Deposit Money</option>
+    </select>
+    <div id="counter-box">Counter: <span id="counter-number"></span></div>
+    <div id="required-documents"></div>
+    <label>Do you need a helper?</label>
+    <select id="helper">
+      <option value="No">No</option>
+      <option value="Yes">Yes</option>
+    </select>
+    <button class="green-button" onclick="bookToken()">Book Token</button>
+    <button class="red-button" onclick="cancelToken()">Cancel Token</button>
+    <div id="token-box"></div>
+  </div>
+
+  <script>
+    let validAccounts = [
+      "123456789",
+      "987654321",
+      "121212121",
+      "555666777",
+      "111222333",
+    ];
+
+    function login() {
+      let username = document.getElementById("username").value.trim();
+      if (username) {
+        sessionStorage.setItem("loggedInUser", username);
+        document.getElementById("login-section").style.display = "none";
+        document.getElementById("account-section").style.display = "block";
+      }
+    }
+
+    function validateAccountOrMobile() {
+      let accNumber = document.getElementById("account-number").value.trim();
+      let mobileNumber = document
+        .getElementById("mobile-number")
+        .value.trim();
+      let message = document.getElementById("account-message");
+
+      if (accNumber && validAccounts.includes(accNumber)) {
+        message.innerText = "Account Verified Successfully";
+        document.getElementById("account-section").style.display = "none";
+        document.getElementById("booking-section").style.display = "block";
+        document.getElementById("user-name").innerText =
+          sessionStorage.getItem("loggedInUser");
+      } else if (mobileNumber && mobileNumber.match(/^\d{10}$/)) {
+        message.innerText = "Mobile Verified Successfully";
+        document.getElementById("account-section").style.display = "none";
+        document.getElementById("booking-section").style.display = "block";
+        document.getElementById("user-name").innerText =
+          sessionStorage.getItem("loggedInUser");
+      } else {
+        message.innerText = "Invalid Account or Mobile Number!";
+      }
+    }
+
+    function showCounterAndDocuments() {
+      let purpose = document.getElementById("purpose").value;
+      let counterBox = document.getElementById("counter-number");
+      let docBox = document.getElementById("required-documents");
+      let documents = {
+        "Open Account": "ID Proof, Address Proof",
+        "Apply Loan": "ID Proof, Income Proof, Credit Report",
+        "Withdraw Money": "Bank Passbook, ID Proof",
+        "Deposit Money": "Deposit Slip, ID Proof",
+      };
+      if (purpose) {
+        counterBox.innerText = Math.floor(Math.random() * 5) + 1;
+        docBox.innerHTML = "Required Documents: " + documents[purpose];
+      } else {
+        docBox.innerHTML = "";
+      }
+    }
+
+    function bookToken() {
+      let email = document.getElementById("email").value;
+      let date = document.getElementById("booking-date").value;
+      let slot = document.getElementById("slot-time").value;
+      let purpose = document.getElementById("purpose").value;
+      let userName = sessionStorage.getItem("loggedInUser"); // Get username from session storage
+
+      if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+        alert("Invalid Email ID");
+        return;
+      }
+      let bookedTokens =
+        JSON.parse(localStorage.getItem("bookedTokens")) || [];
+      if (
+        bookedTokens.find(
+          (t) => t.date === date && t.slot === slot && t.reason === purpose
+        )
+      ) {
+        alert("Token already booked for this slot and purpose!");
+        return;
+      }
+      let tokenNumber = bookedTokens.length + 1;
+      bookedTokens.push({
+        date,
+        slot,
+        reason: purpose, // Changed from purpose to reason
+        email,
+        userName, // Added username
+        token: tokenNumber,
+      });
+      localStorage.setItem("bookedTokens", JSON.stringify(bookedTokens));
+      document.getElementById("token-box").innerText =
+        "Your Token Number: " + tokenNumber;
+
+      emailjs.send("service_s3h8h9u", "template_mkzk7b9", {
+        to_email: email,
+        email: email,
+        username: userName,
+        token: tokenNumber,
+        token_number: tokenNumber,
+        counter: 1,
+        date,
+        slot,
+        purpose
+      }).then(response => {
+        console.log("Email sent successfully:", response);
+        alert("Token booked successfully! A confirmation email has been sent.");
+      }).catch(error => {
+        console.error("Error sending email:", error);
+        alert("Failed to send confirmation email. Please try again.");
+      });
+    }
+
+    function cancelToken() {
+      let bookedTokens =
+        JSON.parse(localStorage.getItem("bookedTokens")) || [];
+
+      if (bookedTokens.length > 0) {
+        // Remove the last token (most recent)
+        const cancelledToken = bookedTokens.pop();
+        localStorage.setItem("bookedTokens", JSON.stringify(bookedTokens)); // Fixed line
+        document.getElementById(
+          "token-box"
+        ).innerText = `Token #${cancelledToken.token} cancelled successfully`;
+      } else {
+        document.getElementById("token-box").innerText =
+          "No active tokens to cancel";
+      }
+    }
+
+    function logout() {
+      sessionStorage.clear();
+      location.reload();
+    }
+
+    document
+      .getElementById("booking-date")
+      .setAttribute("min", new Date().toISOString().split("T")[0]);
+  </script>
+  <a href="homepage sample.html" style="
+        text-decoration: none;
+        color: var(--accent-color);
+        font-weight: bold;
+        display: block;
+        text-align: center;
+        margin: 20px;
+      ">Back To Home Page</a>
+</body>
+
+</html>
